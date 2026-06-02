@@ -1,8 +1,9 @@
 name: Build Quartz Site
 
 on:
-  schedule:
-    - cron: "0 * * * *"
+  push:
+    branches:
+      - v5
   workflow_dispatch:
 
 permissions:
@@ -22,24 +23,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install rclone
-        run: curl -s https://rclone.org/install.sh | sudo bash
-      - name: Pull content from WebDAV
-        env:
-          WEBDAV_USER: ${{ secrets.WEBDAV_USER }}
-          WEBDAV_PASS: ${{ secrets.WEBDAV_PASS }}
-        run: |
-          rclone copy --webdav-url "https://pan.ustc.edu.cn/seafdav/" \
-            --webdav-vendor other \
-            --webdav-user "$WEBDAV_USER" \
-            --webdav-pass "$(rclone obscure "$WEBDAV_PASS")" \
-            :webdav:vault-hrj/01自动化知识网络图谱 ./content
-      - name: Install deps
-        run: npm ci
-      - name: Build
-        run: npx quartz build
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+          cache: npm
+      - run: npm ci
+      - run: npx quartz build
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: public
   deploy:
@@ -49,6 +36,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy
+      - name: Deploy to Pages
         id: deployment
         uses: actions/deploy-pages@v4
