@@ -7,7 +7,7 @@ configuration:
   analytics:
     provider: null
   locale: zh-CN
-  baseUrl: "huarenjian1.github.io"
+  baseUrl: "huarenjian1.github.io/automation-knowledge"
   ignorePatterns:
     - private
     - templates
