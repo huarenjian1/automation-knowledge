@@ -1,9 +1,8 @@
 name: Build Quartz Site
 
 on:
-  push:
-    branches:
-      - v5
+  schedule:
+    - cron: "0 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -24,11 +23,21 @@ jobs:
         with:
           node-version: 20
           cache: npm
+
+      - name: Pull content from WebDAV
+        env:
+          WEBDAV_USER: ${{ secrets.WEBDAV_USER }}
+          WEBDAV_PASS: ${{ secrets.WEBDAV_PASS }}
+        run: |
+          sudo apt-get install -y lftp
+          lftp -c "open -u '$WEBDAV_USER','$WEBDAV_PASS' https://pan.ustc.edu.cn/seafdav/; mirror --verbose --use-pget-n=4 vault-hrj/01自动化知识网络图谱 ./content"
+
       - run: npm ci
       - run: npx quartz build
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
