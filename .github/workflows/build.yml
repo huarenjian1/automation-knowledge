@@ -32,13 +32,17 @@ jobs:
         run: |
           sudo apt-get install -y lftp
           rm -rf content
-          lftp -c "open -u '$WEBDAV_USER','$WEBDAV_PASS' https://pan.ustc.edu.cn/seafdav/; mirror --verbose vault-hrj/01自动化知识网络图谱 ./content --target-directory=."
-          # 如果上面不行，尝试把子目录内容提上来
+          mkdir content
+          cd content
+          lftp -c "open -u '$WEBDAV_USER','$WEBDAV_PASS' https://pan.ustc.edu.cn/seafdav/; mirror vault-hrj/01自动化知识网络图谱"
+          cd ..
+          # 如果多了一层目录，提上来
           if [ -d "content/01自动化知识网络图谱" ]; then
-            mv content/01自动化知识网络图谱/* content/
+            mv content/01自动化知识网络图谱/* content/ 2>/dev/null
+            mv content/01自动化知识网络图谱/.* content/ 2>/dev/null || true
             rm -rf content/01自动化知识网络图谱
           fi
-          echo "=== files ==="
+          echo "=== md files ==="
           find content -name "*.md" | head -20
           echo "=== count ==="
           find content -name "*.md" | wc -l
