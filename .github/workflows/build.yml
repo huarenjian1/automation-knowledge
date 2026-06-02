@@ -31,16 +31,20 @@ jobs:
           WEBDAV_PASS: ${{ secrets.WEBDAV_PASS }}
         run: |
           sudo apt-get install -y lftp
-          mkdir -p content
-          lftp -c "open -u '$WEBDAV_USER','$WEBDAV_PASS' https://pan.ustc.edu.cn/seafdav/; mirror --verbose --use-pget-n=4 vault-hrj/01自动化知识网络图谱 content/"
-          echo "=== content files ==="
-          find content -type f | head -30
+          rm -rf content
+          lftp -c "open -u '$WEBDAV_USER','$WEBDAV_PASS' https://pan.ustc.edu.cn/seafdav/; mirror --verbose vault-hrj/01自动化知识网络图谱 ./content --target-directory=."
+          # 如果上面不行，尝试把子目录内容提上来
+          if [ -d "content/01自动化知识网络图谱" ]; then
+            mv content/01自动化知识网络图谱/* content/
+            rm -rf content/01自动化知识网络图谱
+          fi
+          echo "=== files ==="
+          find content -name "*.md" | head -20
           echo "=== count ==="
-          find content -type f | wc -l
+          find content -name "*.md" | wc -l
 
       - run: npm ci
       - run: npx quartz build
-      - run: ls -la public/ | head -10
 
       - uses: actions/upload-pages-artifact@v3
         with:
