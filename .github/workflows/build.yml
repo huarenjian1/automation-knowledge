@@ -1,4 +1,4 @@
-name: Build and Deploy Quartz
+name: Build Quartz Site
 
 on:
   schedule:
@@ -19,15 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-
       - name: Install rclone
         run: curl -s https://rclone.org/install.sh | sudo bash
-
       - name: Pull content from WebDAV
         env:
           WEBDAV_USER: ${{ secrets.WEBDAV_USER }}
@@ -38,18 +34,14 @@ jobs:
             --webdav-user "$WEBDAV_USER" \
             --webdav-pass "$(rclone obscure "$WEBDAV_PASS")" \
             :webdav:vault-hrj/01自动化知识网络图谱 ./content
-
-      - name: Install dependencies
+      - name: Install deps
         run: npm ci
-
-      - name: Build Quartz
+      - name: Build
         run: npx quartz build
-
-      - name: Upload Pages artifact
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: public
-
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -57,6 +49,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to Pages
+      - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
