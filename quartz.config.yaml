@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
 configuration:
-  pageTitle: 01 自动化知识网络图谱
+  pageTitle: Hrj'note
   pageTitleSuffix: " | 自控 · 计控 · 现控"
   enableSPA: true
   enablePopovers: true
